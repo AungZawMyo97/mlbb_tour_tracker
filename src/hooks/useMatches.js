@@ -28,15 +28,15 @@ export function useMatches(tournamentId = null, status = null) {
       try {
         let url = '/api/mlbb/matches'
         const params = new URLSearchParams({ token: apiKey })
-        
+
         if (tournamentId) {
           params.append('filter[tournament_id]', tournamentId)
         }
-        
+
         if (status) {
           params.append('filter[status]', status)
         }
-        
+
         // Get recent matches
         params.append('sort', '-begin_at')
         params.append('per_page', '50')
@@ -62,9 +62,9 @@ export function useMatches(tournamentId = null, status = null) {
           if (item.status === 'running') matchStatus = 'live'
           else if (item.status === 'finished') matchStatus = 'completed'
 
-          // Use scheduled_at if available, otherwise begin_at, fallback to null
-          const matchDate = item.scheduled_at || item.begin_at || null
-          
+          // Use begin_at (current schedule) if available, fallback to scheduled_at
+          const matchDate = item.begin_at || item.scheduled_at || null
+
           return {
             id: item.id?.toString() || `match-${Date.now()}-${Math.random()}`,
             tournamentId: item.tournament?.id?.toString() || tournamentId,

@@ -1,9 +1,10 @@
-import { Link } from 'react-router-dom'
-import { Trophy, Star, Home, Users } from 'lucide-react'
-import useFavoritesStore from '../stores/favoritesStore'
+import { Link } from "react-router-dom";
+import { Trophy, Star, Home, Users } from "lucide-react";
+import useFavoritesStore from "../stores/favoritesStore";
 
 function Layout({ children }) {
-  const favoriteTournaments = useFavoritesStore((state) => state.favoriteTournaments) || []
+  const favoriteTournaments =
+    useFavoritesStore((state) => state.favoriteTournaments) || [];
 
   return (
     <div className="min-h-screen bg-slate-900">
@@ -17,7 +18,7 @@ function Layout({ children }) {
                 <div className="absolute inset-0 bg-yellow-400/20 blur-xl group-hover:bg-yellow-400/30 transition-colors"></div>
               </div>
               <span className="text-2xl font-bold gradient-purple-blue bg-clip-text text-transparent drop-shadow-lg">
-                Land of Dawn Web
+                MLBB Tournaments
               </span>
             </Link>
 
@@ -53,19 +54,21 @@ function Layout({ children }) {
       </nav>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        {children}
-      </main>
+      <main className="container mx-auto px-4 py-8">{children}</main>
 
       {/* Footer */}
       <footer className="border-t border-purple-500/20 mt-16 py-8 bg-gradient-to-t from-slate-900 to-transparent">
         <div className="container mx-auto px-4 text-center">
-          <p className="text-gray-300 font-semibold">Land of Dawn Web - MLBB Tournament Tracker</p>
-          <p className="text-sm mt-2 text-gray-500">M7 World Championship Edition</p>
+          <p className="text-gray-300 font-semibold">
+            Land of Dawn Web - MLBB Tournament Tracker
+          </p>
+          <p className="text-sm mt-2 text-gray-500">
+            M7 World Championship Edition
+          </p>
         </div>
       </footer>
     </div>
-  )
+  );
 }
 
-export default Layout
+export default Layout;

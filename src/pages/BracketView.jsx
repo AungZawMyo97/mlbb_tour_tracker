@@ -1,20 +1,26 @@
-import { useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
-import { ArrowLeft, Trophy } from 'lucide-react'
-import { useMatches } from '../hooks/useMatches'
-import useTournamentsStore from '../stores/tournamentsStore'
+import { useState } from "react";
+import { useParams, Link } from "react-router-dom";
+import { ArrowLeft, Trophy } from "lucide-react";
+import { useMatches } from "../hooks/useMatches";
+import useTournamentsStore from "../stores/tournamentsStore";
+import { normalizeTournamentName } from "../utils/tournamentUtils";
 
 function BracketView() {
-  const { tournamentId } = useParams()
-  const [selectedMatch, setSelectedMatch] = useState(null)
-  
+  const { tournamentId } = useParams();
+  const [selectedMatch, setSelectedMatch] = useState(null);
+
   // Get tournament from store (already fetched at app start)
-  const loading = useTournamentsStore((state) => state.loading)
-  const findTournamentById = useTournamentsStore((state) => state.findTournamentById)
-  const tournament = findTournamentById(tournamentId)
-  
+  const loading = useTournamentsStore((state) => state.loading);
+  const findTournamentById = useTournamentsStore(
+    (state) => state.findTournamentById
+  );
+  const tournament = findTournamentById(tournamentId);
+
   // Fetch matches for this tournament
-  const { matches: tournamentMatches, loading: matchesLoading } = useMatches(tournamentId, null)
+  const { matches: tournamentMatches, loading: matchesLoading } = useMatches(
+    tournamentId,
+    null
+  );
 
   if (loading) {
     return (
@@ -22,37 +28,40 @@ function BracketView() {
         <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
         <p className="mt-4 text-gray-400">Loading tournament...</p>
       </div>
-    )
+    );
   }
 
   if (!tournament) {
     return (
       <div className="text-center py-12">
         <p className="text-gray-400">Tournament not found</p>
-        <Link to="/" className="text-purple-500 hover:text-purple-400 mt-4 inline-block">
+        <Link
+          to="/"
+          className="text-purple-500 hover:text-purple-400 mt-4 inline-block"
+        >
           Go back home
         </Link>
       </div>
-    )
+    );
   }
 
   // Simple bracket structure for demonstration
   // In a real app, you'd have a more complex bracket algorithm
-  const bracketRounds = ['Quarter-Finals', 'Semi-Finals', 'Grand Finals']
-  const organizedMatches = bracketRounds.map(round => 
-    tournamentMatches.filter(m => m.round === round)
-  )
+  const bracketRounds = ["Quarter-Finals", "Semi-Finals", "Grand Finals"];
+  const organizedMatches = bracketRounds.map((round) =>
+    tournamentMatches.filter((m) => m.round === round)
+  );
 
   const getTeamLogo = (teamId) => {
     // Use logo from match data if available
-    const match = tournamentMatches.find(m => 
-      m.team1.id === teamId || m.team2.id === teamId
-    )
+    const match = tournamentMatches.find(
+      (m) => m.team1.id === teamId || m.team2.id === teamId
+    );
     if (match) {
-      return match.team1.id === teamId ? match.team1.logo : match.team2.logo
+      return match.team1.id === teamId ? match.team1.logo : match.team2.logo;
     }
-    return 'https://via.placeholder.com/50'
-  }
+    return "https://via.placeholder.com/50";
+  };
 
   return (
     <div className="space-y-8">
@@ -68,7 +77,7 @@ function BracketView() {
       {/* Header */}
       <div className="bg-slate-800 rounded-lg p-6 border border-slate-700">
         <h1 className="text-3xl font-bold mb-2 gradient-purple-blue bg-clip-text text-transparent">
-          {tournament.name} - Bracket
+          {normalizeTournamentName(tournament.name)} - Bracket
         </h1>
         <p className="text-gray-400">Double Elimination Tournament Bracket</p>
       </div>
@@ -83,79 +92,98 @@ function BracketView() {
         ) : (
           <div className="flex space-x-8 min-w-max">
             {organizedMatches.map((roundMatches, roundIndex) => (
-            <div key={roundIndex} className="flex flex-col space-y-8 min-w-[300px]">
-              {/* Round Header */}
-              <div className="text-center mb-4">
-                <h3 className="text-xl font-bold text-white">{bracketRounds[roundIndex]}</h3>
-              </div>
+              <div
+                key={roundIndex}
+                className="flex flex-col space-y-8 min-w-[300px]"
+              >
+                {/* Round Header */}
+                <div className="text-center mb-4">
+                  <h3 className="text-xl font-bold text-white">
+                    {bracketRounds[roundIndex]}
+                  </h3>
+                </div>
 
-              {/* Matches in this round */}
-              <div className="flex flex-col space-y-4">
-                {roundMatches.map((match, matchIndex) => (
-                  <div
-                    key={match.id}
-                    onClick={() => setSelectedMatch(match)}
-                    className="bg-slate-700 rounded-lg p-4 cursor-pointer hover:bg-slate-600 transition-all border border-slate-600 hover:border-purple-500"
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs text-gray-400">{match.round}</span>
-                      {match.status === 'completed' && (
-                        <Trophy className="w-4 h-4 text-yellow-400" />
-                      )}
-                    </div>
-
-                    {/* Team 1 */}
-                    <Link
-                      to={`/team/${match.team1.id}`}
-                      className="flex items-center space-x-2 mb-2 hover:opacity-80 transition-opacity"
+                {/* Matches in this round */}
+                <div className="flex flex-col space-y-4">
+                  {roundMatches.map((match, matchIndex) => (
+                    <div
+                      key={match.id}
+                      onClick={() => setSelectedMatch(match)}
+                      className="bg-slate-700 rounded-lg p-4 cursor-pointer hover:bg-slate-600 transition-all border border-slate-600 hover:border-purple-500"
                     >
-                      <img
-                        src={getTeamLogo(match.team1.id)}
-                        alt={match.team1.name}
-                        className="w-8 h-8 rounded-full"
-                      />
-                      <span className={`flex-1 text-sm ${
-                        match.team1.score > match.team2.score ? 'font-bold text-white' : 'text-gray-400'
-                      }`}>
-                        {match.team1.name}
-                      </span>
-                      <span className="font-bold">{match.team1.score}</span>
-                    </Link>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs text-gray-400">
+                          {match.round}
+                        </span>
+                        {match.status === "completed" && (
+                          <Trophy className="w-4 h-4 text-yellow-400" />
+                        )}
+                      </div>
 
-                    {/* Team 2 */}
-                    <Link
-                      to={`/team/${match.team2.id}`}
-                      className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
-                    >
-                      <img
-                        src={getTeamLogo(match.team2.id)}
-                        alt={match.team2.name}
-                        className="w-8 h-8 rounded-full"
-                      />
-                      <span className={`flex-1 text-sm ${
-                        match.team2.score > match.team1.score ? 'font-bold text-white' : 'text-gray-400'
-                      }`}>
-                        {match.team2.name}
-                      </span>
-                      <span className="font-bold">{match.team2.score}</span>
-                    </Link>
+                      {/* Team 1 */}
+                      <Link
+                        to={`/team/${match.team1.id}`}
+                        className="flex items-center space-x-2 mb-2 hover:opacity-80 transition-opacity"
+                      >
+                        <img
+                          src={getTeamLogo(match.team1.id)}
+                          alt={match.team1.name}
+                          className="w-8 h-8 rounded-full"
+                        />
+                        <span
+                          className={`flex-1 text-sm ${
+                            match.team1.score > match.team2.score
+                              ? "font-bold text-white"
+                              : "text-gray-400"
+                          }`}
+                        >
+                          {match.team1.name}
+                        </span>
+                        <span className="font-bold">{match.team1.score}</span>
+                      </Link>
 
-                    {/* Status Badge */}
-                    <div className="mt-2">
-                      <span className={`text-xs px-2 py-1 rounded ${
-                        match.status === 'live' ? 'bg-red-500' :
-                        match.status === 'completed' ? 'bg-green-500' :
-                        'bg-blue-500'
-                      }`}>
-                        {match.status.toUpperCase()}
-                      </span>
+                      {/* Team 2 */}
+                      <Link
+                        to={`/team/${match.team2.id}`}
+                        className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+                      >
+                        <img
+                          src={getTeamLogo(match.team2.id)}
+                          alt={match.team2.name}
+                          className="w-8 h-8 rounded-full"
+                        />
+                        <span
+                          className={`flex-1 text-sm ${
+                            match.team2.score > match.team1.score
+                              ? "font-bold text-white"
+                              : "text-gray-400"
+                          }`}
+                        >
+                          {match.team2.name}
+                        </span>
+                        <span className="font-bold">{match.team2.score}</span>
+                      </Link>
+
+                      {/* Status Badge */}
+                      <div className="mt-2">
+                        <span
+                          className={`text-xs px-2 py-1 rounded ${
+                            match.status === "live"
+                              ? "bg-red-500"
+                              : match.status === "completed"
+                              ? "bg-green-500"
+                              : "bg-blue-500"
+                          }`}
+                        >
+                          {match.status.toUpperCase()}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
         )}
       </div>
 
@@ -184,8 +212,12 @@ function BracketView() {
                     alt={selectedMatch.team1.name}
                     className="w-16 h-16 rounded-full mx-auto mb-2 group-hover:scale-110 transition-transform"
                   />
-                  <p className="font-bold group-hover:text-purple-400 transition-colors">{selectedMatch.team1.name}</p>
-                  <p className="text-2xl font-bold">{selectedMatch.team1.score}</p>
+                  <p className="font-bold group-hover:text-purple-400 transition-colors">
+                    {selectedMatch.team1.name}
+                  </p>
+                  <p className="text-2xl font-bold">
+                    {selectedMatch.team1.score}
+                  </p>
                 </Link>
                 <Link
                   to={`/team/${selectedMatch.team2.id}`}
@@ -196,8 +228,12 @@ function BracketView() {
                     alt={selectedMatch.team2.name}
                     className="w-16 h-16 rounded-full mx-auto mb-2 group-hover:scale-110 transition-transform"
                   />
-                  <p className="font-bold group-hover:text-blue-400 transition-colors">{selectedMatch.team2.name}</p>
-                  <p className="text-2xl font-bold">{selectedMatch.team2.score}</p>
+                  <p className="font-bold group-hover:text-blue-400 transition-colors">
+                    {selectedMatch.team2.name}
+                  </p>
+                  <p className="text-2xl font-bold">
+                    {selectedMatch.team2.score}
+                  </p>
                 </Link>
               </div>
 
@@ -214,7 +250,7 @@ function BracketView() {
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export default BracketView
+export default BracketView;

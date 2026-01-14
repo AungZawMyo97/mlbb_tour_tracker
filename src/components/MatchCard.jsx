@@ -1,39 +1,45 @@
-import { Link } from 'react-router-dom'
-import { Clock, Calendar, Trophy } from 'lucide-react'
-import { Star } from 'lucide-react'
-import useFavoritesStore from '../stores/favoritesStore'
-import { formatMatchDate, formatMatchDateTime } from '../utils/dateFormatter'
+import { Link } from "react-router-dom";
+import { Clock, Calendar, Trophy } from "lucide-react";
+import { Star } from "lucide-react";
+import useFavoritesStore from "../stores/favoritesStore";
+import { formatMatchDate, formatMatchDateTime } from "../utils/dateFormatter";
 
 function MatchCard({ match }) {
-  const isTeam1Favorite = useFavoritesStore((state) => state.isTeamFavorite(match.team1.id))
-  const isTeam2Favorite = useFavoritesStore((state) => state.isTeamFavorite(match.team2.id))
-  const toggleTeamFavorite = useFavoritesStore((state) => state.toggleTeamFavorite)
+  const isTeam1Favorite = useFavoritesStore((state) =>
+    state.isTeamFavorite(match.team1.id)
+  );
+  const isTeam2Favorite = useFavoritesStore((state) =>
+    state.isTeamFavorite(match.team2.id)
+  );
+  const toggleTeamFavorite = useFavoritesStore(
+    (state) => state.toggleTeamFavorite
+  );
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'live':
-        return 'bg-red-500 animate-pulse'
-      case 'completed':
-        return 'bg-green-500'
-      case 'upcoming':
-        return 'bg-blue-500'
+      case "live":
+        return "bg-red-500 animate-pulse";
+      case "completed":
+        return "bg-green-500";
+      case "upcoming":
+        return "bg-blue-500";
       default:
-        return 'bg-gray-500'
+        return "bg-gray-500";
     }
-  }
+  };
 
   const getStatusText = (status) => {
     switch (status) {
-      case 'live':
-        return 'LIVE'
-      case 'completed':
-        return 'COMPLETED'
-      case 'upcoming':
-        return 'UPCOMING'
+      case "live":
+        return "LIVE";
+      case "completed":
+        return "COMPLETED";
+      case "upcoming":
+        return "UPCOMING";
       default:
-        return status.toUpperCase()
+        return status.toUpperCase();
     }
-  }
+  };
 
   return (
     <Link
@@ -43,7 +49,11 @@ function MatchCard({ match }) {
       {/* Match Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-2">
-          <span className={`px-4 py-1.5 rounded-full text-xs font-bold text-white shadow-lg ${getStatusColor(match.status)}`}>
+          <span
+            className={`px-4 py-1.5 rounded-full text-xs font-bold text-white shadow-lg ${getStatusColor(
+              match.status
+            )}`}
+          >
             {getStatusText(match.status)}
           </span>
           <span className="text-gray-400 text-sm">{match.round}</span>
@@ -51,13 +61,13 @@ function MatchCard({ match }) {
         <div className="flex items-center space-x-2 text-gray-400 text-sm">
           <Calendar className="w-4 h-4" />
           <span>
-            {match.status === 'upcoming' && match.scheduledAt
+            {match.status === "upcoming" && match.scheduledAt
               ? formatMatchDateTime(match.scheduledAt)
               : match.beginAt
               ? formatMatchDateTime(match.beginAt)
               : match.date
               ? formatMatchDate(match.date)
-              : 'TBA'}
+              : "TBA"}
           </span>
         </div>
       </div>
@@ -82,7 +92,6 @@ function MatchCard({ match }) {
           </div>
           <div>
             <p className="font-semibold text-white">{match.team1.name}</p>
-            <p className="text-sm text-gray-400">Team 1</p>
           </div>
         </Link>
 
@@ -91,11 +100,14 @@ function MatchCard({ match }) {
           <div className="text-3xl font-bold gradient-purple-blue bg-clip-text text-transparent">
             {match.team1.score} - {match.team2.score}
           </div>
-          {match.status === 'completed' && (
+          {match.status === "completed" && (
             <div className="flex items-center justify-center mt-2 space-x-1">
               <Trophy className="w-4 h-4 text-yellow-400" />
               <span className="text-xs text-gray-400">
-                {match.team1.score > match.team2.score ? match.team1.name : match.team2.name} Wins
+                {match.team1.score > match.team2.score
+                  ? match.team1.name
+                  : match.team2.name}{" "}
+                Wins
               </span>
             </div>
           )}
@@ -108,8 +120,9 @@ function MatchCard({ match }) {
           className="flex items-center space-x-3 justify-end hover:opacity-80 transition-opacity"
         >
           <div>
-            <p className="font-semibold text-white text-right">{match.team2.name}</p>
-            <p className="text-sm text-gray-400 text-right">Team 2</p>
+            <p className="font-semibold text-white text-right">
+              {match.team2.name}
+            </p>
           </div>
           <div className="relative">
             <img
@@ -140,7 +153,7 @@ function MatchCard({ match }) {
         )}
       </div>
     </Link>
-  )
+  );
 }
 
-export default MatchCard
+export default MatchCard;

@@ -1,19 +1,29 @@
-import { useParams, Link } from 'react-router-dom'
-import { Calendar, MapPin, Trophy, ArrowLeft, Network } from 'lucide-react'
-import MatchCard from '../components/MatchCard'
-import { useMatches } from '../hooks/useMatches'
-import useTournamentsStore from '../stores/tournamentsStore'
+import { useParams, Link } from "react-router-dom";
+import { Calendar, MapPin, Trophy, ArrowLeft, Network } from "lucide-react";
+import MatchCard from "../components/MatchCard";
+import { useMatches } from "../hooks/useMatches";
+import useTournamentsStore from "../stores/tournamentsStore";
+import { formatMatchDate } from "../utils/dateFormatter";
+import {
+  getTournamentStatusColor,
+  normalizeTournamentName,
+} from "../utils/tournamentUtils";
 
 function TournamentDetail() {
-  const { id } = useParams()
-  
+  const { id } = useParams();
+
   // Get tournament from store (already fetched at app start)
-  const loading = useTournamentsStore((state) => state.loading)
-  const findTournamentById = useTournamentsStore((state) => state.findTournamentById)
-  const tournament = findTournamentById(id)
-  
+  const loading = useTournamentsStore((state) => state.loading);
+  const findTournamentById = useTournamentsStore(
+    (state) => state.findTournamentById
+  );
+  const tournament = findTournamentById(id);
+
   // Fetch matches for this tournament
-  const { matches: tournamentMatches, loading: matchesLoading } = useMatches(id, null)
+  const { matches: tournamentMatches, loading: matchesLoading } = useMatches(
+    id,
+    null
+  );
 
   if (loading) {
     return (
@@ -21,31 +31,21 @@ function TournamentDetail() {
         <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
         <p className="mt-4 text-gray-400">Loading tournament...</p>
       </div>
-    )
+    );
   }
 
   if (!tournament) {
     return (
       <div className="text-center py-12">
         <p className="text-gray-400">Tournament not found</p>
-        <Link to="/" className="text-purple-500 hover:text-purple-400 mt-4 inline-block">
+        <Link
+          to="/"
+          className="text-purple-500 hover:text-purple-400 mt-4 inline-block"
+        >
           Go back home
         </Link>
       </div>
-    )
-  }
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'ongoing':
-        return 'bg-green-500'
-      case 'upcoming':
-        return 'bg-blue-500'
-      case 'completed':
-        return 'bg-gray-500'
-      default:
-        return 'bg-gray-500'
-    }
+    );
   }
 
   return (
@@ -64,9 +64,13 @@ function TournamentDetail() {
         <div className="flex items-start justify-between mb-6">
           <div>
             <h1 className="text-4xl font-bold mb-4 gradient-purple-blue bg-clip-text text-transparent drop-shadow-lg">
-              {tournament.name.replace(/M5/gi, 'M7')}
+              {normalizeTournamentName(tournament.name)}
             </h1>
-            <span className={`inline-block px-4 py-2 rounded-full text-sm font-bold text-white ${getStatusColor(tournament.status)}`}>
+            <span
+              className={`inline-block px-4 py-2 rounded-full text-sm font-bold text-white ${getTournamentStatusColor(
+                tournament.status
+              )}`}
+            >
               {tournament.status.toUpperCase()}
             </span>
           </div>
@@ -80,12 +84,12 @@ function TournamentDetail() {
               alt={tournament.name}
               className="w-32 h-32 object-contain rounded-xl bg-slate-700/30 p-4 border border-slate-600/50 shadow-lg"
               onError={(e) => {
-                e.target.style.display = 'none'
+                e.target.style.display = "none";
               }}
             />
           </div>
         )}
-        
+
         <p className="text-gray-300 text-lg mb-6">{tournament.description}</p>
 
         {/* Tournament Info Grid */}
@@ -95,7 +99,8 @@ function TournamentDetail() {
             <div>
               <p className="text-sm text-gray-400">Date</p>
               <p className="font-semibold">
-                {new Date(tournament.startDate).toLocaleDateString()} - {new Date(tournament.endDate).toLocaleDateString()}
+                {formatMatchDate(tournament.startDate)} -{" "}
+                {formatMatchDate(tournament.endDate)}
               </p>
             </div>
           </div>
@@ -112,7 +117,13 @@ function TournamentDetail() {
             <Trophy className="w-6 h-6 text-yellow-400" />
             <div>
               <p className="text-sm text-gray-400">Prize Pool</p>
-              <p className="font-semibold">{tournament.prizePool}</p>
+              <p
+                className={`font-semibold ${
+                  tournament.prizePool === "TBA" ? "text-gray-500 italic" : ""
+                }`}
+              >
+                {tournament.prizePool}
+              </p>
             </div>
           </div>
         </div>
@@ -159,7 +170,7 @@ function TournamentDetail() {
         )}
       </section>
     </div>
-  )
+  );
 }
 
-export default TournamentDetail
+export default TournamentDetail;

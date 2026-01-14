@@ -1,36 +1,51 @@
-import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import { ChevronLeft, ChevronRight, Calendar, MapPin, Trophy, Star } from 'lucide-react'
-import useFavoritesStore from '../stores/favoritesStore'
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Calendar,
+  MapPin,
+  Trophy,
+  Star,
+} from "lucide-react";
+import useFavoritesStore from "../stores/favoritesStore";
+import { normalizeTournamentName } from "../utils/tournamentUtils";
 
 function HeroCarousel({ tournaments }) {
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const featuredTournaments = tournaments.filter(t => t.featured)
-  
-  const toggleTournamentFavorite = useFavoritesStore((state) => state.toggleTournamentFavorite)
-  const isTournamentFavorite = useFavoritesStore((state) => state.isTournamentFavorite)
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const featuredTournaments = tournaments.filter((t) => t.featured);
+
+  const toggleTournamentFavorite = useFavoritesStore(
+    (state) => state.toggleTournamentFavorite
+  );
+  const isTournamentFavorite = useFavoritesStore(
+    (state) => state.isTournamentFavorite
+  );
 
   useEffect(() => {
-    if (featuredTournaments.length === 0) return
-    
+    if (featuredTournaments.length === 0) return;
+
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % featuredTournaments.length)
-    }, 5000)
+      setCurrentIndex((prev) => (prev + 1) % featuredTournaments.length);
+    }, 5000);
 
-    return () => clearInterval(interval)
-  }, [featuredTournaments.length])
+    return () => clearInterval(interval);
+  }, [featuredTournaments.length]);
 
-  if (featuredTournaments.length === 0) return null
+  if (featuredTournaments.length === 0) return null;
 
-  const currentTournament = featuredTournaments[currentIndex]
+  const currentTournament = featuredTournaments[currentIndex];
 
   const nextSlide = () => {
-    setCurrentIndex((prev) => (prev + 1) % featuredTournaments.length)
-  }
+    setCurrentIndex((prev) => (prev + 1) % featuredTournaments.length);
+  };
 
   const prevSlide = () => {
-    setCurrentIndex((prev) => (prev - 1 + featuredTournaments.length) % featuredTournaments.length)
-  }
+    setCurrentIndex(
+      (prev) =>
+        (prev - 1 + featuredTournaments.length) % featuredTournaments.length
+    );
+  };
 
   return (
     <div className="relative w-full h-96 rounded-2xl overflow-hidden mb-8 shadow-2xl">
@@ -59,24 +74,26 @@ function HeroCarousel({ tournaments }) {
               <Trophy className="w-10 h-10 text-yellow-400 drop-shadow-lg" />
               <div className="absolute inset-0 bg-yellow-400/30 blur-xl"></div>
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold drop-shadow-lg">{currentTournament.name.replace(/M5/g, 'M7').replace(/m5/gi, 'M7')}</h1>
+            <h1 className="text-4xl md:text-5xl font-bold drop-shadow-lg">
+              {normalizeTournamentName(currentTournament.name)}
+            </h1>
             <button
               onClick={(e) => {
-                e.preventDefault()
-                toggleTournamentFavorite(currentTournament.id)
+                e.preventDefault();
+                toggleTournamentFavorite(currentTournament.id);
               }}
               className="ml-4 p-2 hover:bg-white/10 rounded-full transition-colors"
             >
               <Star
                 className={`w-6 h-6 ${
                   isTournamentFavorite(currentTournament.id)
-                    ? 'fill-yellow-400 text-yellow-400'
-                    : 'text-white'
+                    ? "fill-yellow-400 text-yellow-400"
+                    : "text-white"
                 }`}
               />
             </button>
           </div>
-          
+
           <p className="text-xl text-gray-200 mb-6 max-w-2xl mx-auto">
             {currentTournament.description}
           </p>
@@ -85,17 +102,20 @@ function HeroCarousel({ tournaments }) {
             <div className="flex items-center space-x-2">
               <Calendar className="w-5 h-5" />
               <span>
-                {new Date(currentTournament.startDate).toLocaleDateString()} - {new Date(currentTournament.endDate).toLocaleDateString()}
+                {new Date(currentTournament.startDate).toLocaleDateString()} -{" "}
+                {new Date(currentTournament.endDate).toLocaleDateString()}
               </span>
             </div>
             <div className="flex items-center space-x-2">
               <MapPin className="w-5 h-5" />
               <span>{currentTournament.location}</span>
             </div>
-            <div className="flex items-center space-x-2">
-              <Trophy className="w-5 h-5" />
-              <span className="font-bold">{currentTournament.prizePool}</span>
-            </div>
+            {currentTournament.prizePool !== "TBA" && (
+              <div className="flex items-center space-x-2">
+                <Trophy className="w-5 h-5" />
+                <span className="font-bold">{currentTournament.prizePool}</span>
+              </div>
+            )}
           </div>
 
           <Link
@@ -125,14 +145,14 @@ function HeroCarousel({ tournaments }) {
               key={index}
               onClick={() => setCurrentIndex(index)}
               className={`w-2 h-2 rounded-full transition-all ${
-                index === currentIndex ? 'bg-white w-8' : 'bg-white/50'
+                index === currentIndex ? "bg-white w-8" : "bg-white/50"
               }`}
             />
           ))}
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export default HeroCarousel
+export default HeroCarousel;

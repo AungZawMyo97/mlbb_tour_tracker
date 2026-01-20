@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Calendar, Trophy, Star, Zap } from "lucide-react";
+import { Calendar, Trophy, Star } from "lucide-react";
 import useFavoritesStore from "../stores/favoritesStore";
 import { formatMatchDate, formatMatchDateTime } from "../utils/dateFormatter";
 import type { Match } from "../hooks/useMatches";

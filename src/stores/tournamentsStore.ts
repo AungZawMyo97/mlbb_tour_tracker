@@ -135,7 +135,7 @@ const useTournamentsStore = create<TournamentsState>((set, get) => ({
 
           // Use league data if found, otherwise fall back to tournament league data
           const leagueName = league?.name || item.league?.name;
-          const leagueImage = league?.imageUrl || item.league?.image_url;
+          // const leagueImage = league?.imageUrl || item.league?.image_url;
           // Resolve Location with fallback
           let leagueLocation =
             league?.location || item.league?.location || item.country;

@@ -31,11 +31,11 @@ function Home() {
   const filteredTournaments = getTournamentsByStatus("ongoing");
 
   return (
-    <div className="flex gap-6">
+    <div className="flex flex-col-reverse lg:flex-row gap-6">
       {/* Sidebar */}
-      <aside className="w-80 flex-shrink-0">
+      <aside className="w-full lg:w-80 flex-shrink-0 grid grid-cols-1 md:grid-cols-2 lg:flex lg:flex-col gap-6">
         {/* Upcoming Matches Card */}
-        <div className="card-bg rounded-2xl p-5 mb-6 border border-[#1e273b]">
+        <div className="card-bg rounded-2xl p-5 border border-[#1e273b]">
           <div className="flex justify-between items-center mb-5">
             <h3 className="text-lg font-bold text-white">Upcoming Matches</h3>
             <Link

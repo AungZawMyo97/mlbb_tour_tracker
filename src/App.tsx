@@ -8,6 +8,7 @@ import BracketView from "./pages/BracketView";
 import TeamDetail from "./pages/TeamDetail";
 import Teams from "./pages/Teams";
 import Matches from "./pages/Matches";
+import SearchResults from "./pages/SearchResults";
 import useTournamentsStore from "./stores/tournamentsStore";
 import useLeaguesStore from "./stores/leaguesStore";
 
@@ -43,6 +44,7 @@ function App() {
           <Route path="/bracket/:tournamentId" element={<BracketView />} />
           <Route path="/team/:id" element={<TeamDetail />} />
           <Route path="/teams" element={<Teams />} />
+          <Route path="/search" element={<SearchResults />} />
         </Routes>
       </Layout>
     </Router>

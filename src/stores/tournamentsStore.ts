@@ -1,7 +1,41 @@
 import { create } from "zustand";
-import useLeaguesStore from "./leaguesStore";
+import useLeaguesStore, { League } from "./leaguesStore.ts";
+import m7Logo from "../assets/m7_logo.png";
 
-const useTournamentsStore = create((set, get) => ({
+export interface Tournament {
+  id: string;
+  name: string;
+  status: "ongoing" | "upcoming" | "completed";
+  startDate: string;
+  endDate: string;
+  location: string;
+  prizePool: string;
+  featured: boolean;
+  description: string;
+  logo: string | null;
+  leagueId?: string;
+  league?: League | null;
+  _apiData?: any;
+}
+
+interface TournamentsState {
+  tournaments: {
+    ongoing: Tournament[];
+    upcoming: Tournament[];
+    completed: Tournament[];
+  };
+  loading: boolean;
+  error: string | null;
+  lastFetched: string | null;
+  fetchAllTournaments: () => Promise<void>;
+  getTournamentsByStatus: (
+    status: "ongoing" | "upcoming" | "completed",
+  ) => Tournament[];
+  getAllTournaments: () => Tournament[];
+  findTournamentById: (id: string | undefined) => Tournament | undefined;
+}
+
+const useTournamentsStore = create<TournamentsState>((set, get) => ({
   tournaments: {
     ongoing: [],
     upcoming: [],
@@ -13,7 +47,7 @@ const useTournamentsStore = create((set, get) => ({
 
   // Fetch all tournaments at once
   fetchAllTournaments: async () => {
-    const apiKey = import.meta.env.VITE_PANDASCORE_KEY;
+    const apiKey = import.meta.env.VITE_PANDASCORE_KEY as string | undefined;
 
     if (!apiKey) {
       set({
@@ -52,13 +86,16 @@ const useTournamentsStore = create((set, get) => ({
       ]);
 
       // Transform data for each status
-      const transformTournaments = (data, status) => {
+      const transformTournaments = (
+        data: any[],
+        status: "ongoing" | "upcoming" | "completed",
+      ): Tournament[] => {
         // Get leagues from leagues store to match with tournaments
         const leaguesState = useLeaguesStore.getState();
         const leagues = leaguesState.leagues || [];
 
         // Helper to infer location from league name
-        const inferLocation = (leagueName) => {
+        const inferLocation = (leagueName: string | undefined): string => {
           if (!leagueName) return "TBA";
           const lower = leagueName.toLowerCase();
           if (lower.includes("ph") || lower.includes("philippines"))
@@ -85,15 +122,15 @@ const useTournamentsStore = create((set, get) => ({
           return "TBA";
         };
 
-        return data.map((item) => {
+        return data.map((item: any): Tournament => {
           // Find league from leagues store using league ID
           const leagueId =
             item.league?.id?.toString() || item.league_id?.toString();
           const league = leagueId
             ? leagues.find(
-                (l) =>
-                  l.id === leagueId || l._apiData?.id?.toString() === leagueId
-              )
+              (l) =>
+                l.id === leagueId || l._apiData?.id?.toString() === leagueId,
+            )
             : null;
 
           // Use league data if found, otherwise fall back to tournament league data
@@ -116,13 +153,13 @@ const useTournamentsStore = create((set, get) => ({
           tournamentName = tournamentName.replace(/M5/gi, "M7");
 
           // Custom Logo Logic
-          const logoUrl =
-            leagueName?.includes("M5") ||
-            leagueName?.includes("M7") ||
-            item.name?.includes("M5") ||
-            item.name?.includes("M7")
-              ? "https://liquipedia.net/commons/images/d/dd/M7_World_allmode.png"
-              : leagueImage || null;
+          const logoUrl = m7Logo;
+          // leagueName?.includes("m5") ||
+          //   leagueName?.includes("M7") ||
+          //   item.name?.includes("M5") ||
+          //   item.name?.includes("M7")
+          //   ? m7Logo
+          //   : leagueImage || null;
 
           return {
             id:
@@ -157,9 +194,11 @@ const useTournamentsStore = create((set, get) => ({
         lastFetched: new Date().toISOString(),
       });
     } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to fetch tournaments";
       console.error("Error fetching tournaments:", err);
       set({
-        error: err.message || "Failed to fetch tournaments",
+        error: errorMessage,
         loading: false,
         tournaments: {
           ongoing: [],
@@ -171,7 +210,7 @@ const useTournamentsStore = create((set, get) => ({
   },
 
   // Get tournaments by status
-  getTournamentsByStatus: (status) => {
+  getTournamentsByStatus: (status: "ongoing" | "upcoming" | "completed") => {
     const state = get();
     return state.tournaments[status] || [];
   },
@@ -187,10 +226,11 @@ const useTournamentsStore = create((set, get) => ({
   },
 
   // Find tournament by ID
-  findTournamentById: (id) => {
+  findTournamentById: (id: string | undefined) => {
+    if (!id) return undefined;
     const allTournaments = get().getAllTournaments();
     return allTournaments.find(
-      (t) => t.id === id || t._apiData?.id?.toString() === id
+      (t) => t.id === id || t._apiData?.id?.toString() === id,
     );
   },
 }));

@@ -1,7 +1,7 @@
 /**
  * Tournament status colors for UI display
  */
-export const TOURNAMENT_STATUS_COLORS = {
+export const TOURNAMENT_STATUS_COLORS: Record<string, string> = {
   ongoing: "bg-green-500",
   upcoming: "bg-blue-500",
   completed: "bg-gray-500",
@@ -12,7 +12,7 @@ export const TOURNAMENT_STATUS_COLORS = {
  * @param {string} status - Tournament status
  * @returns {string} Tailwind CSS class
  */
-export function getTournamentStatusColor(status) {
+export function getTournamentStatusColor(status: string): string {
   return TOURNAMENT_STATUS_COLORS[status] || TOURNAMENT_STATUS_COLORS.completed;
 }
 
@@ -21,7 +21,9 @@ export function getTournamentStatusColor(status) {
  * @param {string} name - Tournament name
  * @returns {string} Updated tournament name
  */
-export function normalizeTournamentName(name) {
+export function normalizeTournamentName(
+  name: string | null | undefined,
+): string {
   if (!name) return "";
   return name.replace(/M5/gi, "M7");
 }

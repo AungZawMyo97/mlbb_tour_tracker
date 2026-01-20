@@ -5,18 +5,22 @@ import {
   getTournamentStatusColor,
   normalizeTournamentName,
 } from "../utils/tournamentUtils";
-import { formatMatchDate } from "../utils/dateFormatter";
+import { Tournament } from "../stores/tournamentsStore";
 
-function TournamentCard({ tournament }) {
+interface TournamentCardProps {
+  tournament: Tournament;
+}
+
+function TournamentCard({ tournament }: TournamentCardProps) {
   const toggleTournamentFavorite = useFavoritesStore(
-    (state) => state.toggleTournamentFavorite
+    (state) => state.toggleTournamentFavorite,
   );
   const isTournamentFavorite = useFavoritesStore(
-    (state) => state.isTournamentFavorite
+    (state) => state.isTournamentFavorite,
   );
 
   return (
-    <div className="glass-effect rounded-xl p-6 hover:bg-slate-700/90 transition-all duration-300 border border-slate-700/50 hover:border-purple-500/50 hover:cyber-glow card-hover shadow-lg">
+    <div className="glass-effect-cyan rounded-xl p-6 transition-all duration-300 card-border-cyan card-hover shadow-xl hover:shadow-2xl hover:cyber-glow-cyan tournament-banner">
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
@@ -42,7 +46,7 @@ function TournamentCard({ tournament }) {
           </div>
           <span
             className={`inline-block px-4 py-1.5 rounded-full text-xs font-bold text-white shadow-lg ${getTournamentStatusColor(
-              tournament.status
+              tournament.status,
             )}`}
           >
             {tournament.status.toUpperCase()}
@@ -53,14 +57,16 @@ function TournamentCard({ tournament }) {
       {/* Logo */}
       {tournament.logo && (
         <div className="mb-4 flex justify-center">
-          <img
-            src={tournament.logo}
-            alt={tournament.name}
-            className="w-20 h-20 object-contain rounded-lg bg-slate-700/30 p-2 border border-slate-600/50"
-            onError={(e) => {
-              e.target.style.display = "none";
-            }}
-          />
+          <div className="w-24 h-24 hexagon hexagon-border-gold p-2 flex items-center justify-center">
+            <img
+              src={tournament.logo}
+              alt={tournament.name}
+              className="w-full h-full object-contain"
+              onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+                (e.target as HTMLImageElement).style.display = "none";
+              }}
+            />
+          </div>
         </div>
       )}
 
@@ -74,13 +80,13 @@ function TournamentCard({ tournament }) {
           <span className="text-sm">
             {tournament.startDate && tournament.endDate
               ? `${new Date(
-                  tournament.startDate
+                  tournament.startDate,
                 ).toLocaleDateString()} - ${new Date(
-                  tournament.endDate
+                  tournament.endDate,
                 ).toLocaleDateString()}`
               : tournament.startDate
-              ? new Date(tournament.startDate).toLocaleDateString()
-              : "TBA"}
+                ? new Date(tournament.startDate).toLocaleDateString()
+                : "TBA"}
           </span>
         </div>
         {tournament.location && tournament.location !== "TBA" && (
@@ -102,7 +108,7 @@ function TournamentCard({ tournament }) {
       {/* Action */}
       <Link
         to={`/tournament/${tournament.id}`}
-        className="block w-full text-center px-4 py-2.5 gradient-purple-blue rounded-lg font-semibold hover:gradient-purple-blue-hover transition-all shadow-lg hover:shadow-xl"
+        className="block w-full text-center px-4 py-2.5 bg-gradient-to-r from-yellow-500 via-orange-400 to-orange-600 text-black font-bold rounded-lg hover:from-yellow-400 hover:via-orange-300 hover:to-orange-500 transition-all shadow-lg hover:shadow-2xl hover:cyber-glow-gold"
       >
         View Details
       </Link>

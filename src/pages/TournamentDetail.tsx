@@ -1,5 +1,5 @@
 import { useParams, Link } from "react-router-dom";
-import { Calendar, MapPin, Trophy, ArrowLeft, Network } from "lucide-react";
+import { Calendar, MapPin, Trophy, ArrowLeft } from "lucide-react";
 import MatchCard from "../components/MatchCard";
 import { useMatches } from "../hooks/useMatches";
 import useTournamentsStore from "../stores/tournamentsStore";
@@ -10,19 +10,19 @@ import {
 } from "../utils/tournamentUtils";
 
 function TournamentDetail() {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
 
   // Get tournament from store (already fetched at app start)
   const loading = useTournamentsStore((state) => state.loading);
   const findTournamentById = useTournamentsStore(
-    (state) => state.findTournamentById
+    (state) => state.findTournamentById,
   );
   const tournament = findTournamentById(id);
 
   // Fetch matches for this tournament
   const { matches: tournamentMatches, loading: matchesLoading } = useMatches(
-    id,
-    null
+    id || null,
+    null,
   );
 
   if (loading) {
@@ -68,7 +68,7 @@ function TournamentDetail() {
             </h1>
             <span
               className={`inline-block px-4 py-2 rounded-full text-sm font-bold text-white ${getTournamentStatusColor(
-                tournament.status
+                tournament.status,
               )}`}
             >
               {tournament.status.toUpperCase()}
@@ -83,8 +83,8 @@ function TournamentDetail() {
               src={tournament.logo}
               alt={tournament.name}
               className="w-32 h-32 object-contain rounded-xl bg-slate-700/30 p-4 border border-slate-600/50 shadow-lg"
-              onError={(e) => {
-                e.target.style.display = "none";
+              onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+                (e.target as HTMLImageElement).style.display = "none";
               }}
             />
           </div>
@@ -98,57 +98,32 @@ function TournamentDetail() {
             <Calendar className="w-6 h-6 text-purple-500" />
             <div>
               <p className="text-sm text-gray-400">Date</p>
-              <p className="font-semibold">
+              <p className="text-white font-semibold">
                 {formatMatchDate(tournament.startDate)} -{" "}
                 {formatMatchDate(tournament.endDate)}
               </p>
             </div>
           </div>
-
           <div className="flex items-center space-x-3">
             <MapPin className="w-6 h-6 text-purple-500" />
             <div>
               <p className="text-sm text-gray-400">Location</p>
-              <p className="font-semibold">{tournament.location}</p>
+              <p className="text-white font-semibold">{tournament.location}</p>
             </div>
           </div>
-
           <div className="flex items-center space-x-3">
-            <Trophy className="w-6 h-6 text-yellow-400" />
+            <Trophy className="w-6 h-6 text-purple-500" />
             <div>
               <p className="text-sm text-gray-400">Prize Pool</p>
-              <p
-                className={`font-semibold ${
-                  tournament.prizePool === "TBA" ? "text-gray-500 italic" : ""
-                }`}
-              >
-                {tournament.prizePool}
-              </p>
+              <p className="text-white font-semibold">{tournament.prizePool}</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Bracket Link */}
-      <Link
-        to={`/bracket/${tournament.id}`}
-        className="block w-full glass-effect rounded-xl p-6 border border-slate-700/50 hover:border-purple-500/50 transition-all hover:cyber-glow card-hover shadow-lg"
-      >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <Network className="w-8 h-8 text-purple-500" />
-            <div>
-              <h3 className="text-xl font-bold text-white">View Bracket</h3>
-              <p className="text-gray-400">Interactive tournament bracket</p>
-            </div>
-          </div>
-          <div className="text-purple-500 font-semibold">→</div>
-        </div>
-      </Link>
-
       {/* Matches Section */}
       <section>
-        <h2 className="text-3xl font-bold mb-6 gradient-purple-blue bg-clip-text text-transparent">
+        <h2 className="text-3xl font-bold mb-6 gradient-purple-blue bg-clip-text text-transparent drop-shadow-lg">
           Matches
         </h2>
 
@@ -157,15 +132,17 @@ function TournamentDetail() {
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
             <p className="mt-4 text-gray-400">Loading matches...</p>
           </div>
-        ) : tournamentMatches.length > 0 ? (
-          <div className="space-y-4">
-            {tournamentMatches.map((match) => (
-              <MatchCard key={match.id} match={match} />
-            ))}
-          </div>
         ) : (
-          <div className="text-center py-12 text-gray-400">
-            <p>No matches scheduled yet</p>
+          <div className="space-y-4">
+            {tournamentMatches.length > 0 ? (
+              tournamentMatches.map((match) => (
+                <MatchCard key={match.id} match={match} />
+              ))
+            ) : (
+              <div className="text-center py-12 text-gray-400">
+                <p>No matches available for this tournament</p>
+              </div>
+            )}
           </div>
         )}
       </section>

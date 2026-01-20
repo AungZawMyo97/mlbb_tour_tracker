@@ -1,22 +1,53 @@
 import { useState, useEffect } from "react";
 
+interface Team {
+  id: string;
+  name: string;
+  score: number;
+  logo: string | null;
+}
+
+export interface Match {
+  id: string;
+  tournamentId?: string;
+  round: string;
+  bestOf: number;
+  status: "upcoming" | "live" | "completed";
+  date: string | null;
+  beginAt: string | null;
+  endAt: string | null;
+  scheduledAt: string | null;
+  team1: Team;
+  team2: Team;
+  _apiData?: any;
+}
+
+interface UseMatchesReturn {
+  matches: Match[];
+  loading: boolean;
+  error: string | null;
+}
+
 /**
  * Custom hook to fetch matches from PandaScore API
  * @param {string} tournamentId - Optional tournament ID to filter matches
  * @param {string} status - Optional status filter ('running', 'not_started', 'finished')
- * @returns {object} - { matches, loading, error }
+ * @returns {UseMatchesReturn} - { matches, loading, error }
  */
-export function useMatches(tournamentId = null, status = null) {
-  const [matches, setMatches] = useState([]);
+export function useMatches(
+  tournamentId: string | null = null,
+  status: string | null = null,
+): UseMatchesReturn {
+  const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const apiKey = import.meta.env.VITE_PANDASCORE_KEY;
+    const apiKey = import.meta.env.VITE_PANDASCORE_KEY as string | undefined;
 
     if (!apiKey) {
       setError(
-        "API key not configured. Please set VITE_PANDASCORE_KEY in your .env file."
+        "API key not configured. Please set VITE_PANDASCORE_KEY in your .env file.",
       );
       setLoading(false);
       return;
@@ -54,15 +85,15 @@ export function useMatches(tournamentId = null, status = null) {
 
         if (!response.ok) {
           throw new Error(
-            `Failed to fetch matches: ${response.status} ${response.statusText}`
+            `Failed to fetch matches: ${response.status} ${response.statusText}`,
           );
         }
 
         const data = await response.json();
 
-        const transformedData = data.map((item) => {
+        const transformedData: Match[] = data.map((item: any) => {
           // Map PandaScore status to our status
-          let matchStatus = "upcoming";
+          let matchStatus: "upcoming" | "live" | "completed" = "upcoming";
           if (item.status === "running") matchStatus = "live";
           else if (item.status === "finished") matchStatus = "completed";
 
@@ -102,8 +133,10 @@ export function useMatches(tournamentId = null, status = null) {
         setMatches(transformedData);
         setError(null);
       } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to fetch matches";
         console.error("Error fetching matches:", err);
-        setError(err.message || "Failed to fetch matches");
+        setError(errorMessage);
         setMatches([]);
       } finally {
         setLoading(false);

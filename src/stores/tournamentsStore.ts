@@ -45,7 +45,7 @@ const useTournamentsStore = create<TournamentsState>((set, get) => ({
   error: null,
   lastFetched: null,
 
-  // Fetch all tournaments at once
+
   fetchAllTournaments: async () => {
     const apiKey = import.meta.env.VITE_PANDASCORE_KEY as string | undefined;
 
@@ -61,7 +61,7 @@ const useTournamentsStore = create<TournamentsState>((set, get) => ({
     set({ loading: true, error: null });
 
     try {
-      // Fetch all tournament types in parallel
+
       const [runningRes, upcomingRes, pastRes] = await Promise.all([
         fetch(`/api/mlbb/tournaments/running?token=${apiKey}`, {
           headers: { Accept: "application/json" },
@@ -74,7 +74,7 @@ const useTournamentsStore = create<TournamentsState>((set, get) => ({
         }),
       ]);
 
-      // Check if all requests succeeded
+
       if (!runningRes.ok || !upcomingRes.ok || !pastRes.ok) {
         throw new Error("Failed to fetch tournaments");
       }
@@ -85,16 +85,16 @@ const useTournamentsStore = create<TournamentsState>((set, get) => ({
         pastRes.json(),
       ]);
 
-      // Transform data for each status
+
       const transformTournaments = (
         data: any[],
         status: "ongoing" | "upcoming" | "completed",
       ): Tournament[] => {
-        // Get leagues from leagues store to match with tournaments
+
         const leaguesState = useLeaguesStore.getState();
         const leagues = leaguesState.leagues || [];
 
-        // Helper to infer location from league name
+
         const inferLocation = (leagueName: string | undefined): string => {
           if (!leagueName) return "TBA";
           const lower = leagueName.toLowerCase();
@@ -123,7 +123,7 @@ const useTournamentsStore = create<TournamentsState>((set, get) => ({
         };
 
         return data.map((item: any): Tournament => {
-          // Find league from leagues store using league ID
+
           const leagueId =
             item.league?.id?.toString() || item.league_id?.toString();
           const league = leagueId
@@ -133,26 +133,22 @@ const useTournamentsStore = create<TournamentsState>((set, get) => ({
             )
             : null;
 
-          // Use league data if found, otherwise fall back to tournament league data
           const leagueName = league?.name || item.league?.name;
-          // const leagueImage = league?.imageUrl || item.league?.image_url;
-          // Resolve Location with fallback
+
+
           let leagueLocation =
             league?.location || item.league?.location || item.country;
           if (!leagueLocation || leagueLocation === "null") {
             leagueLocation = inferLocation(leagueName);
           }
 
-          // Replace M5 with M7 in tournament names
           let tournamentName =
             leagueName && item.name
               ? `${leagueName} - ${item.name}`
               : item.name || leagueName || "Unnamed Tournament";
 
-          // Replace M5 with M7 (case insensitive)
           tournamentName = tournamentName.replace(/M5/gi, "M7");
 
-          // Custom Logo Logic
           const logoUrl = m7Logo;
           // leagueName?.includes("m5") ||
           //   leagueName?.includes("M7") ||
@@ -177,7 +173,7 @@ const useTournamentsStore = create<TournamentsState>((set, get) => ({
             description: leagueName || item.name || "Mobile Legends tournament",
             logo: logoUrl,
             leagueId: leagueId,
-            league: league, // Store full league object
+            league: league,
             _apiData: item,
           };
         });
@@ -209,13 +205,13 @@ const useTournamentsStore = create<TournamentsState>((set, get) => ({
     }
   },
 
-  // Get tournaments by status
+
   getTournamentsByStatus: (status: "ongoing" | "upcoming" | "completed") => {
     const state = get();
     return state.tournaments[status] || [];
   },
 
-  // Get all tournaments combined
+
   getAllTournaments: () => {
     const state = get();
     return [
@@ -225,7 +221,7 @@ const useTournamentsStore = create<TournamentsState>((set, get) => ({
     ];
   },
 
-  // Find tournament by ID
+
   findTournamentById: (id: string | undefined) => {
     if (!id) return undefined;
     const allTournaments = get().getAllTournaments();

@@ -1,5 +1,7 @@
 import { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import ReactGA from "react-ga4";
+
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import TournamentDetail from "./pages/TournamentDetail";
@@ -11,6 +13,8 @@ import Matches from "./pages/Matches";
 import SearchResults from "./pages/SearchResults";
 import useTournamentsStore from "./stores/tournamentsStore";
 import useLeaguesStore from "./stores/leaguesStore";
+
+ReactGA.initialize("G-B9KJQSC9Q9");
 
 function App() {
   const fetchAllTournaments = useTournamentsStore(
@@ -32,6 +36,10 @@ function App() {
     };
     initializeData();
   }, [fetchAllLeagues, fetchAllTournaments]);
+
+  useEffect(() => {
+    ReactGA.send({ hitType: "pageview", page: window.location.pathname });
+  }, []);
 
   return (
     <Router>
